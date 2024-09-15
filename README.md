@@ -1,12 +1,13 @@
-- 👋 Hi, I’m @Abhishek45-byte
-- 👀 I’m interested in ...
-- 🌱 I’m currently learning ...
-- 💞️ I’m looking to collaborate on ...
-- 📫 How to reach me ...
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
+🚀 Abhishek Kumar Gupta | BCA Student | Tech Enthusiast
 
-<!---
-Abhishek45-byte/Abhishek45-byte is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
-You can click the Preview link to take a look at your changes.
---->
+Coding my way through the digital cosmos ☄️
+Turning caffeine into code since [2005] 
+Always in debug mode 🐛
+
+Current mission: Exploring the vast universe of tech 🌌
+Interests: AI, Web Dev, Cybersecurity, and everything in between
+
+"In code we trust, but comments we must" 💻
+
+Open for collaboration and learning opportunities!
+Let's git-connected and push the boundaries of innovation 🤝
