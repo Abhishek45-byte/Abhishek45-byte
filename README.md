@@ -1,13 +1,14 @@
-🚀 Abhishek Kumar Gupta | BCA Student | Tech Enthusiast
+👨‍💻 Aspiring Tech Creator | CS Student @ University of the People
+🌐 Passionate about solving problems with code and exploring the endless possibilities of technology.
+💡 Constantly learning, building, and experimenting with new ideas.
 
-Coding my way through the digital cosmos ☄️
-Turning caffeine into code since [2005] 
-Always in debug mode 🐛
-
-Current mission: Exploring the vast universe of tech 🌌
-Interests: AI, Web Dev, Cybersecurity, and everything in between
-
-"In code we trust, but comments we must" 💻
-
-Open for collaboration and learning opportunities!
-Let's git-connected and push the boundaries of innovation 🤝
+🌟 What I Do:
+Languages: Python, JavaScript, C++ (always exploring more 🚀)
+Interests: Web Development, Data Science, AI, and Open Source Contributions
+Projects: Turning caffeine-fueled ideas into reality ☕💻
+📚 Education:
+Proudly studying Computer Science at the University of the People—because learning is a journey, not a destination! 🌍
+✨ Fun Facts:
+I’m a self-proclaimed code poet 🖋️
+Lifelong believer in "Hello, World!" moments 🌟
+Let’s connect and build something amazing together! 🌐👾
