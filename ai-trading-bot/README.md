@@ -19,6 +19,7 @@ Starts in **paper mode** (fake Rs 1,00,000). Without Kite keys, paper prices com
 - Every order shows a ticket and needs you to type `yes`. The AI cannot bypass this.
 - No market orders: LIMIT at LTP ± buffer (1% stocks/futures, 5% options), rounded away from the market on the 0.05 tick.
 - Blocks orders over `MAX_ORDER_VALUE` / `MAX_QUANTITY`, after `DAILY_LOSS_LIMIT` is hit, and outside 09:15–15:30 IST (exchange holidays not checked).
+- Exits are never trapped: an order that only reduces or closes an open position skips the size and daily-loss limits. An order that would flip you from long to short (or back) counts as a new trade.
 - Everything is logged to `trades.log`.
 
 AI suggestions are not financial advice. Test in paper mode for a few weeks before going live, and start small.

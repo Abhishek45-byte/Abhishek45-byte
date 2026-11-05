@@ -15,7 +15,7 @@ load_dotenv()
 import anthropic  # noqa: E402
 
 from broker import PriceError, make_broker  # noqa: E402
-from risk import IST, RiskLimits, buffer_for, check_order, limit_price  # noqa: E402
+from risk import IST, RiskLimits, buffer_for, check_order, limit_price, reduces_position  # noqa: E402
 
 MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-5")
 LOG_FILE = "trades.log"
@@ -70,16 +70,28 @@ class TradingBot:
         self.history = []
 
     # ----- tools -----
+    def open_quantity(self, exchange, symbol, product):
+        """Net open quantity in this instrument (and product, on a real broker). + long, - short."""
+        total = 0
+        for p in self.broker.positions():
+            if p["exchange"].upper() != exchange or p["tradingsymbol"].upper() != symbol:
+                continue
+            if p.get("product") not in ("PAPER", product):
+                continue
+            total += int(p["quantity"])
+        return total
+
     def propose_order(self, exchange, symbol, side, quantity, product, reason):
         exchange, symbol, side = exchange.upper(), symbol.upper(), side.upper()
         ltp = self.broker.ltp(exchange, symbol)
         price = limit_price(ltp, side, buffer_for(exchange, symbol))
-        problems = check_order(exchange, quantity, price, self.broker.day_pnl(), self.limits)
+        is_exit = reduces_position(side, quantity, self.open_quantity(exchange, symbol, product))
+        problems = check_order(exchange, quantity, price, self.broker.day_pnl(), self.limits, is_exit=is_exit)
         if problems:
             log({"event": "blocked", "symbol": symbol, "side": side, "qty": quantity, "why": problems})
             return {"status": "BLOCKED", "reasons": problems}
         print(f"\n  ┌─ ORDER TICKET [{self.broker.name}]")
-        print(f"  │ {side} {quantity} x {exchange}:{symbol}  ({product})")
+        print(f"  │ {side} {quantity} x {exchange}:{symbol}  ({product}){'  [EXIT]' if is_exit else ''}")
         print(f"  │ LTP Rs {ltp:,.2f}  ->  LIMIT Rs {price:,.2f}   value ~Rs {price * quantity:,.0f}")
         print(f"  │ Reason: {reason}")
         print("  └─")
@@ -88,7 +100,7 @@ class TradingBot:
             return {"status": "DECLINED_BY_USER"}
         oid = self.broker.place_limit(exchange, symbol, side, quantity, price, product)
         log({"event": "placed", "order_id": oid, "symbol": f"{exchange}:{symbol}", "side": side,
-             "qty": quantity, "ltp": ltp, "limit": price, "mode": self.broker.name})
+             "qty": quantity, "exit": is_exit, "ltp": ltp, "limit": price, "mode": self.broker.name})
         status = next((o for o in self.broker.orders() if str(o["order_id"]) == str(oid)), {})
         return {"status": "PLACED", "order_id": oid, "ltp": ltp, "limit_price": price,
                 "broker_status": status.get("status")}

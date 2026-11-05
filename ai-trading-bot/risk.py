@@ -49,20 +49,33 @@ class RiskLimits:
     require_market_open: bool = os.getenv("REQUIRE_MARKET_OPEN", "1") == "1"
 
 
-def check_order(exchange, quantity, price, day_pnl, limits: RiskLimits, now=None) -> list[str]:
-    """Return a list of reasons to BLOCK. Empty list = OK."""
+def reduces_position(side: str, quantity: int, open_qty: int) -> bool:
+    """True if the order only shrinks or closes an existing position (never opens or flips one)."""
+    if side.upper() == "SELL":
+        return 0 < quantity <= open_qty
+    return 0 < quantity <= -open_qty
+
+
+def check_order(exchange, quantity, price, day_pnl, limits: RiskLimits, now=None,
+                is_exit: bool = False) -> list[str]:
+    """Return a list of reasons to BLOCK. Empty list = OK.
+
+    is_exit=True means the order only reduces an existing position. Exits skip the size and
+    daily-loss limits so you can always get out of a trade; the other checks still apply.
+    """
     problems = []
     if exchange.upper() not in limits.allowed_exchanges:
         problems.append(f"Exchange {exchange} not allowed.")
     if quantity <= 0:
         problems.append("Quantity must be positive.")
-    if quantity > limits.max_quantity:
-        problems.append(f"Quantity {quantity} > max {limits.max_quantity}.")
-    value = quantity * price
-    if value > limits.max_order_value:
-        problems.append(f"Order value Rs {value:,.0f} > max Rs {limits.max_order_value:,.0f}.")
-    if day_pnl <= -limits.daily_loss_limit:
-        problems.append(f"Daily loss limit hit (P&L Rs {day_pnl:,.0f}). No new trades today.")
+    if not is_exit:
+        if quantity > limits.max_quantity:
+            problems.append(f"Quantity {quantity} > max {limits.max_quantity}.")
+        value = quantity * price
+        if value > limits.max_order_value:
+            problems.append(f"Order value Rs {value:,.0f} > max Rs {limits.max_order_value:,.0f}.")
+        if day_pnl <= -limits.daily_loss_limit:
+            problems.append(f"Daily loss limit hit (P&L Rs {day_pnl:,.0f}). No new trades today; exits are still allowed.")
     if limits.require_market_open and not market_open(now):
         problems.append("Market is closed (09:15-15:30 IST, Mon-Fri).")
     return problems
