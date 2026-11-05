@@ -15,7 +15,7 @@ load_dotenv()
 import anthropic  # noqa: E402
 
 from broker import PriceError, make_broker  # noqa: E402
-from risk import IST, RiskLimits, buffer_for, check_order, limit_price, reduces_position  # noqa: E402
+from risk import IST, RiskLimits, buffer_for, check_order, limit_price, market_warnings, reduces_position  # noqa: E402
 
 MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-5-5")
 LOG_FILE = "trades.log"
@@ -109,6 +109,8 @@ class TradingBot:
         print(f"  │ {side} {quantity} x {exchange}:{symbol}  ({product}){'  [EXIT]' if is_exit else ''}")
         print(f"  │ LTP Rs {ltp:,.2f}  ->  LIMIT Rs {price:,.2f}   value ~Rs {price * quantity:,.0f}")
         print(f"  │ Reason: {reason}")
+        for w in market_warnings():
+            print(f"  │ WARNING: {w}")
         print("  └─")
         if not self.confirm("  Type 'yes' to place, anything else to cancel: "):
             log({"event": "declined", "symbol": symbol, "side": side, "qty": quantity})
@@ -171,6 +173,8 @@ def main():
     print(f"AI Trading Bot - mode: {bot.broker.name}. Type 'quit' to exit.\n")
     if "LIVE" in bot.broker.name:
         print("!! LIVE MODE: confirmed orders use REAL money. !!\n")
+    for w in market_warnings():
+        print(f"WARNING: {w}\n")
     while True:
         try:
             text = input("You: ").strip()

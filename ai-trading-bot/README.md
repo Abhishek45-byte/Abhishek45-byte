@@ -20,8 +20,9 @@ Paper mode acts like a cash account: buys need free cash (open buy orders reserv
 ## Safety built in
 - Every order shows a ticket and needs you to type `yes`. The AI cannot bypass this.
 - No market orders: LIMIT at LTP ± buffer (1% stocks/futures, 5% options), rounded away from the market on the 0.05 tick.
-- Blocks orders over `MAX_ORDER_VALUE` / `MAX_QUANTITY`, after `DAILY_LOSS_LIMIT` is hit, and outside 09:15–15:30 IST (exchange holidays not checked).
+- Blocks orders over `MAX_ORDER_VALUE` / `MAX_QUANTITY`, after `DAILY_LOSS_LIMIT` is hit, and outside 09:15–15:30 IST or on an exchange holiday.
 - Exits are never trapped: an order that only reduces or closes an open position skips the size and daily-loss limits. For CNC sells of NSE/BSE stock this counts your demat holdings too. An order that would flip you from long to short (or back) counts as a new trade.
+- Exchange holidays live in `holidays.txt` (2026 included). NSE publishes each new year's list in December: add it there. If the current year has no dates, the bot warns at startup and on every ticket that holidays aren't being checked. Special sessions such as Sunday Muhurat trading are treated as closed.
 - Everything is logged to `trades.log`.
 
 AI suggestions are not financial advice. Test in paper mode for a few weeks before going live, and start small.
