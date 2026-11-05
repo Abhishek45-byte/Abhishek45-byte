@@ -17,7 +17,7 @@ import anthropic  # noqa: E402
 from broker import PriceError, make_broker  # noqa: E402
 from risk import IST, RiskLimits, buffer_for, check_order, limit_price, reduces_position  # noqa: E402
 
-MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-5")
+MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-5-5")
 LOG_FILE = "trades.log"
 
 SYSTEM = """You are a trading assistant for Indian markets (NSE, BSE, NFO, BFO), talking to the account owner.
