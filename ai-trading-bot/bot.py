@@ -86,7 +86,7 @@ class TradingBot:
 
         total = 0
         for p in self.broker.positions():
-            if same(p["exchange"], p["tradingsymbol"]) and p.get("product") in ("PAPER", product):
+            if same(p["exchange"], p["tradingsymbol"]) and p.get("product") == product:
                 total += int(p["quantity"])
         if cash_delivery:
             for h in self.broker.holdings():
@@ -100,6 +100,8 @@ class TradingBot:
         price = limit_price(ltp, side, buffer_for(exchange, symbol))
         is_exit = reduces_position(side, quantity, self.open_quantity(exchange, symbol, product))
         problems = check_order(exchange, quantity, price, self.broker.day_pnl(), self.limits, is_exit=is_exit)
+        if hasattr(self.broker, "precheck"):  # paper account rules (cash, no CNC shorts), checked before the ticket
+            problems += self.broker.precheck(exchange, symbol, side, quantity, price, product)
         if problems:
             log({"event": "blocked", "symbol": symbol, "side": side, "qty": quantity, "why": problems})
             return {"status": "BLOCKED", "reasons": problems}
@@ -116,7 +118,8 @@ class TradingBot:
              "qty": quantity, "exit": is_exit, "ltp": ltp, "limit": price, "mode": self.broker.name})
         status = next((o for o in self.broker.orders() if str(o["order_id"]) == str(oid)), {})
         return {"status": "PLACED", "order_id": oid, "ltp": ltp, "limit_price": price,
-                "broker_status": status.get("status")}
+                "broker_status": status.get("status"),
+                "note": "OPEN means the limit is resting and has not filled yet." if status.get("status") == "OPEN" else ""}
 
     def cancel_order(self, order_id):
         if not self.confirm(f"  Cancel order {order_id}? Type 'yes': "):

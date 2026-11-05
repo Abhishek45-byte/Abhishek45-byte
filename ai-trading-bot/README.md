@@ -10,6 +10,8 @@ python bot.py
 ```
 Starts in **paper mode** (fake Rs 1,00,000). Without Kite keys, paper prices come from Yahoo (~15 min delayed, cash stocks only).
 
+Paper mode acts like a cash account: buys need free cash (open buy orders reserve theirs), CNC can only sell shares you hold, CNC is for NSE/BSE and NRML for F&O, and a limit that doesn't cross rests as OPEN and fills when the price reaches it (checked whenever you look at orders, positions or funds). It does not model MIS/F&O margin, auto square-off or charges.
+
 ## Going live (Zerodha)
 1. Get a Kite Connect app at developers.kite.trade (paid API).
 2. Each morning, log in and put the access token in `.env` as `KITE_ACCESS_TOKEN`.
