@@ -1,0 +1,4 @@
+anthropic>=0.40
+python-dotenv>=1.0
+kiteconnect>=5.0
+yfinance>=0.2.40
