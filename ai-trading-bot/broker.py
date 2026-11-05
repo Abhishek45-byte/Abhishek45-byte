@@ -44,6 +44,11 @@ class KiteBroker:
             for p in self.kite.positions()["net"]
         ]
 
+    def holdings(self):
+        """Demat holdings (delivery stock from earlier days). t1_quantity = bought, not yet settled."""
+        keys = ("exchange", "tradingsymbol", "quantity", "t1_quantity", "average_price", "last_price", "pnl")
+        return [{k: h.get(k) for k in keys} for h in self.kite.holdings()]
+
     def day_pnl(self):
         return sum(p["pnl"] for p in self.kite.positions()["net"])
 
@@ -142,6 +147,9 @@ class PaperBroker:
             out.append({"exchange": ex, "tradingsymbol": sym, "quantity": p["qty"], "average_price": round(p["avg"], 2),
                         "last_price": last, "pnl": round((last - p["avg"]) * p["qty"], 2), "product": "PAPER"})
         return out
+
+    def holdings(self):
+        return []  # paper trades all live in positions
 
     def day_pnl(self):
         return self.realized + sum(p["pnl"] for p in self.positions())

@@ -71,14 +71,27 @@ class TradingBot:
 
     # ----- tools -----
     def open_quantity(self, exchange, symbol, product):
-        """Net open quantity in this instrument (and product, on a real broker). + long, - short."""
+        """Net quantity you hold in this instrument and product. + long, - short.
+
+        For CNC (delivery) on NSE/BSE this includes demat holdings, and a share counts on either
+        exchange: holdings can be sold on NSE or BSE. Today's sells of holdings show up as a negative
+        CNC position, so holdings + positions = what is still left to sell.
+        """
+        cash_delivery = product == "CNC" and exchange in ("NSE", "BSE")
+
+        def same(ex, sym):
+            if sym.upper() != symbol:
+                return False
+            return ex.upper() in ("NSE", "BSE") if cash_delivery else ex.upper() == exchange
+
         total = 0
         for p in self.broker.positions():
-            if p["exchange"].upper() != exchange or p["tradingsymbol"].upper() != symbol:
-                continue
-            if p.get("product") not in ("PAPER", product):
-                continue
-            total += int(p["quantity"])
+            if same(p["exchange"], p["tradingsymbol"]) and p.get("product") in ("PAPER", product):
+                total += int(p["quantity"])
+        if cash_delivery:
+            for h in self.broker.holdings():
+                if same(h["exchange"], h["tradingsymbol"]):
+                    total += int(h["quantity"]) + int(h.get("t1_quantity") or 0)
         return total
 
     def propose_order(self, exchange, symbol, side, quantity, product, reason):
